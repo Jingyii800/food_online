@@ -9,7 +9,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email', 'password']
 
-    def clean(self):
+    def clean(self): # check password and confirm password match
         cleaned_date = super(UserForm, self).clean()
         password = cleaned_date.get('password')
         confirm_password = cleaned_date.get('confirm_password')
