@@ -1,0 +1,12 @@
+{% autoescape off %}
+
+Hi {{ user.first_name }}
+
+{% if is_approved %}
+Congratulations! You are approved as a vendor by our admin team. Welcome to join our marketplace! --Food Online Group
+{% else %}
+Sorry! you are not eligible to publish your products on our marketplace. Please contact our admin for more infomation --Food Online Group
+{% endif %}
+
+
+{% endautoescape %}
