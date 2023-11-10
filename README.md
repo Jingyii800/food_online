@@ -1,2 +1,2 @@
 # food_online
-An online food odering platform
+An online food ordering platform
