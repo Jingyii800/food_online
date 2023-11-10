@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% include 'includes/alerts.html' %}
+{% block content %}
+
+<!-- Main Section Start -->
+<div class="main-section">
+    <!-- load cover section here -->
+    {% include 'includes/cover.html'%}
+        <div class="page-section account-header buyer-logged-in">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                        <!-- load th side bar here -->
+                        {% include 'includes/v_side_bar.html' %}
+                    </div>
+                    <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                        <div class="user-dashboard loader-holder">
+                            <div class="user-holder">
+                                <h5 class="text-uppercase">Food Items</h5>
+                                <button onclick="history.back()" class="btn btn-secondary" ><i class="fa fa-angle-left" aria-hidden="true"></i> Back</button>
+                                <br><br>
+                                <h6>Category: <span class=" text-success">{{category}}</span></h6>
+                                {% if fooditems %}
+                                <table class="table table-hover table-borderless">
+                                    <tbody>
+                                    {% for item in fooditems %}
+                                      <tr>
+                                        <td class="text-left">{{forloop.counter}}</td>
+                                        <td class="text-left"><img src="{{item.image.url}}" alt="food image" width="40"></td>
+                                        <td class="text-left">
+                                            <a href=""><p class="mb-0 font-weight-bold">{{item.food_title}}</p>
+                                            <small class="text-muted">{{item.description}}</small></a>
+                                        </td>
+                                        <td class="text-left">{{item.price}}</td>
+                                        <td><i class="fa fa-pencil-square-o" aria-hidden="true"></i></td>
+                                        <td><i class="fa fa-trash text-danger" aria-hidden="true"></i></td>
+                                      </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                  </table>
+                                  {% else %}
+                                  <h5 class="text-center">No Food Items Found</h5>
+                                  <div class="text-center">
+                                    <a href="#" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> 
+                                        &nbsp; Add Food</a>
+                                  </div>
+                                  {% endif %}
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Section End -->
+
+{% endblock %}
