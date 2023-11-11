@@ -27,7 +27,6 @@ function onPlaceChanged (){
     var geocoder = new google.maps.Geocoder()
     // seperate the address from place
     var address = document.getElementById('id_address').value
-    
     geocoder.geocode({'address':address}, function(results, status) {
         // console.log('results =>', results) // contains address
         // console.log('status=>', status)  // status: ok
@@ -38,12 +37,11 @@ function onPlaceChanged (){
             $(`#id_lattitude`).val(latitude)
             $(`#id_longtitude`).val(longtitude)
 
-            $(`#id_address`).val(place.name)
+            $(`#id_address`).val(address)
         }
     })
 
     // loop through address component and assign other data
-    console.log(place.address_components)
     for (var i = 0; i < place.address_components.length; i ++){
         for (var j = 0; j < place.address_components[i].types.length; j++){
             // get country
