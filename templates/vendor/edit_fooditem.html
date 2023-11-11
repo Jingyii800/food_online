@@ -18,19 +18,25 @@
                         <div class="user-dashboard loader-holder">
                             <div class="user-holder">
                                 <h5 class="text-uppercase">Build Your Menu</h5>
-                                <br>
-                                <h6>Add Category</h6>
+                                <button onclick="history.back()" class="btn btn-secondary" ><i class="fa fa-angle-left" aria-hidden="true"></i> Back</button>
+                                <br><br>
+                                <h6>Edit Food Item</h6>
                                 <!-- form -->
-                                <form action="{% url 'edit_category' category.id %}" method="post">
+                                <form action="{% url 'edit_fooditem' food.id %}" method="post" enctype="multipart/form-data">
                                     {% csrf_token %} 
                                     <div class="class form-fields-set">
                                         <div class="class row">
                                             <div class="col-lg-12 col-md-12 col-sm-12">
                                                 <div class="field-holder">
-                                                    <label>Category Name *</label>
-                                                    {{form.category_name}}
+                                                    <label>FoodItem *</label>
+                                                    {{form.food_title}}
                                                 </div>
-                                        
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="field-holder">
+                                                    <label>Category *</label>
+                                                    {{form.category}}
+                                                </div>
                                             </div>
                                             <div class="col-lg-12 col-md-12 col-sm-12">
                                                 <div class="field-holder">
@@ -38,9 +44,29 @@
                                                     {{form.description}}
                                                 </div>
                                             </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="field-holder">
+                                                    <label>Price *</label>
+                                                    {{form.price}}
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="field-holder">
+                                                    <label>Image *</label>
+                                                    {{form.image}}
+                                                    <img src="{{food.image.url}}" alt="Food Image" width="100" class="mt-2">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="field-holder">
+                                                    <label>Is Available ? *</label>
+                                                    {{form.is_available}}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    {% for field in forms %}
+                                    {% for field in form %}
                                         {% if field.errors %}
                                             {% for error in field.errors%}
                                                 <li style="color: crimson;">{{error}}</li>
@@ -48,7 +74,9 @@
                                         {% endif %}
                                     {% endfor %}
                                     <button type="submit" class="btn btn-info"><i class="fa fa-check" aria-hidden="true"></i> Save</button>
-                                    <a href="{% url 'delete_category'  category.id%}" onclick="return confirm('Are you sure to delete this category?')" class="btn btn-danger"> <i class="fa fa-trash" aria-hidden="true"></i> Delete</a>
+                                    <a href="{% url 'delete_fooditem'  food.id%}" 
+                                    onclick="return confirm('Are you sure to delete this food?')" 
+                                    class="btn btn-danger"> <i class="fa fa-trash" aria-hidden="true"></i> Delete</a>
                                 </form>
                                         <!-- My Restaurants Form End -->
     
