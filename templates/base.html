@@ -26,9 +26,15 @@
 	<script src="{% static '/js/modernizr.js' %}"></script>
 	<script src="{% static '/js/bootstrap.js' %}"></script>
 	
-
+	<!-- GOOGLE MAP API -->
+	{% if '/profile/' in reuqest.GET %}
 	<script src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_API_KEY}}&libraries=places&callback=initAutoComplete" defer></script>
+	{% endif %}
+
+	<!-- CUSTOM JS -->
 	<script src="{% static '/js/custom.js' %}"></script>
+	<!-- sweet alert -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 	<style>
 		body, .main-section p, .mce-content-body p{

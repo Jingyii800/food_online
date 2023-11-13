@@ -63,3 +63,158 @@ function onPlaceChanged (){
         }
     }
 }
+
+// Ajax request
+$(document).ready(function(){
+    $('.add_to_cart').on('click', function(e){
+        e.preventDefault()
+        // retrieve food_id and url and data from dom
+        food_id = $(this).attr('data-id')
+        url = $(this).attr('data-url')
+        $.ajax({
+            type: 'GET',
+            url: url, // already has the food-id in this url
+            success: function(response){
+                // display real-time cart count
+                if (response.status == 'login_required'){
+                    Swal.fire({
+                        text: response.message,
+                        icon: "info"
+                      }).then(function(){
+                        window.location = '/login' // click o to direct to login page
+                      })
+                }else if(response.status == 'Failed'){
+                    Swal.fire({
+                        text: response.message,
+                        icon: "error"
+                    })
+                }
+                else{
+                    $('#cart-counter').html(response.cart_count['cart_count'])
+                    $(`#qty-`+food_id).html(response.qty) //quantity for each
+
+                    applyCartAmounts(response.cart_amount['subtotal'], 
+                    response.cart_amount['tax'],response.cart_amount['total'])
+                }
+            }
+        })
+    })
+
+    $('.decrease_cart').on('click', function(e){
+        e.preventDefault()
+        // retrieve food_id and data and url from dom
+        food_id = $(this).attr('data-id')
+        cart_id = $(this).attr('id')
+        url = $(this).attr('data-url')
+        $.ajax({
+            type: 'GET',
+            url: url, 
+            // already has the food-id in this url 
+            //from 'path('decrease_cart/<int:food_id>''
+            // and "{% url 'decrease_cart' food.id %}"
+            success: function(response){
+                //display
+                if (response.status == 'login_required'){
+                    Swal.fire({
+                        text: response.message,
+                        icon: "info"
+                      }).then(function(){
+                        window.location = '/login' // click o to direct to login page
+                      })
+                }else if(response.status == 'Failed'){
+                    Swal.fire({
+                        text: response.message,
+                        icon: "error"
+                    })
+                }
+                else{
+                    $('#cart-counter').html(response.cart_count['cart_count'])
+                    $(`#qty-`+food_id).html(response.qty)
+                    
+                    if(window.location.pathname =='/marketplace/cart/'){
+                        removeCartitem(response.qty, cart_id)
+                        checkEmptyCart()
+                    }
+
+                    applyCartAmounts(response.cart_amount['subtotal'], 
+                    response.cart_amount['tax'],response.cart_amount['total'])
+                }
+            }
+        })
+    })
+
+    $('.delete_cart').on('click', function(e){
+        e.preventDefault()
+        cart_id = $(this).attr('data-id')
+        url = $(this).attr('data-url')
+        $.ajax({
+            type:'GET',
+            url: url,
+            success: function(response){
+                //display message
+                if (response.status=='login_required'){
+                    Swal.fire({
+                        text: response.message,
+                        icon: "info"
+                    }).then(function(){
+                        window.location = '/login'
+                    })
+                } else if(response.status=='Failed'){
+                    Swal.fire({
+                        text: response.message,
+                        icon: "error"
+                    })
+                }else{
+                    $('#cart-counter').html(response.cart_count['cart_count'])
+                    Swal.fire({
+                        text: response.message,
+                        icon:'success'
+                    })
+
+                    removeCartitem(0, cart_id)
+                    checkEmptyCart()
+
+                    applyCartAmounts(response.cart_amount['subtotal'], 
+                    response.cart_amount['tax'],response.cart_amount['total'])
+
+                }
+            }
+        })
+    })
+
+    // delete the cart item if the qty is 0
+    function removeCartitem(cartitemQty, cart_id){
+        // only when user is in the cart page
+            if (cartitemQty <= 0){
+                // remove the item
+                document.getElementById('cart-item-'+cart_id).remove()
+            }
+    }
+
+    //check cart if empty display empty
+    function checkEmptyCart(){
+        var cart_count = document.getElementById('cart-counter').innerHTML
+        if (cart_count== 0) {
+            document.getElementById('empty-cart').style.display = "block"
+        }
+    }
+
+    //apply cart amounts
+    function applyCartAmounts(subtotal, tax, total){
+        if(window.location.pathname == '/marketplace/cart/'){
+            $('#subtotal').html(subtotal)
+            $('#tax').html(tax)
+            $('#total').html(total)
+        }
+    }
+
+    // place each quantity for each food item
+    // necessary!!!
+    // initialize the page (retrieve from database)
+    // if not having this, initial count will display 0
+    $('.item_qty').each(function(){
+        var the_id = $(this).attr('id')
+        var qty = $(this).attr('data-qty')
+        $(`#`+the_id).html(qty)
+    })
+})
