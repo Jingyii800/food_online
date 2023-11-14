@@ -5,10 +5,14 @@ from django.conf.urls.static import static
 from django.conf import settings
 from . import views
 from django.urls import include
+from marketplace import views as MarketplaceViews
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('', include('accounts.urls')),
-    path('marketplace/', include('marketplace.urls'))
+    path('marketplace/', include('marketplace.urls')),
+
+    # search path
+    path('search/', MarketplaceViews.search, name='search')
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

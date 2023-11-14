@@ -78,8 +78,9 @@ def add_category(request):
             category_name = form.cleaned_data['category_name']
             category= form.save(commit=False)
             category.vendor = vendor
-            category.slug = slugify(category_name)
-            category.save()
+            category.save() # will generate id when saving
+            # make it as the slug of the category
+            category.slug = slugify(category_name)+'-'+category.id
             messages.success(request, "Category Created Successfully")
             return redirect('menu_builder')
         else:
@@ -139,7 +140,7 @@ def add_fooditem(request):
     else:
         form = FoodItemForm()
         # modify the form
-        form['category'].queryset = Category.objects.filter(vendor = get_vendor(request))
+        form.fields['category'].queryset = Category.objects.filter(vendor = get_vendor(request))
     context = {
         'form': form,
     }
