@@ -94,7 +94,7 @@ $(document).ready(function(){
                     $(`#qty-`+food_id).html(response.qty) //quantity for each
 
                     applyCartAmounts(response.cart_amount['subtotal'], 
-                    response.cart_amount['tax'],response.cart_amount['total'])
+                    response.cart_amount['tax_dict'],response.cart_amount['total'])
                 }
             }
         })
@@ -200,11 +200,17 @@ $(document).ready(function(){
     }
 
     //apply cart amounts
-    function applyCartAmounts(subtotal, tax, total){
+    function applyCartAmounts(subtotal, tax_dict, total){
         if(window.location.pathname == '/marketplace/cart/'){
             $('#subtotal').html(subtotal)
-            $('#tax').html(tax)
             $('#total').html(total)
+
+            for (key_name in tax_dict){
+                for (key_slug in tax_dict[key_name]){
+                    for (key_perc in tax_dict[key_name][key_slug])
+                    $('#tax-'+key_slug).html(tax_dict[key_name][key_slug][key_perc])
+                }
+            }
         }
     }
 
