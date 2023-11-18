@@ -36,3 +36,8 @@ class UserProfileForm(forms.ModelForm):
         for field in self.fields:
             if field == 'lattitude' or field == 'longtitude':
                 self.fields[field].widget.attrs['readonly'] = 'readonly'
+
+class UserInfoForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'phone_number']

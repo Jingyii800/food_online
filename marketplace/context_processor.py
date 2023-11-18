@@ -37,6 +37,6 @@ def get_cart_amounts(request):
             tax_amount = round(subtotal*tax_percentage/100, 2)
             total_tax += tax_amount
             tax_dict.update({tax_type:{tax_slug: {str(tax_percentage): tax_amount}}})
-        print(tax_dict)
+
         total = total_tax + subtotal # total amount
     return dict(total=total, subtotal=subtotal, tax=total_tax, tax_dict=tax_dict)

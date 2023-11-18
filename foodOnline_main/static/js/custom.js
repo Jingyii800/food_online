@@ -28,7 +28,7 @@ function onPlaceChanged (){
     // seperate the address from place
     var address = document.getElementById('id_address').value
     geocoder.geocode({'address':address}, function(results, status) {
-        // console.log('results =>', results) // contains address
+        //console.log('results =>', results) // contains address
         // console.log('status=>', status)  // status: ok
         if (status == google.maps.GeocoderStatus.OK){ // get lat and longt
             var latitude = results[0].geometry.location.lat()
@@ -54,7 +54,7 @@ function onPlaceChanged (){
             }
             // get city
             if(place.address_components[i].types[j]=='locality'){
-                $(`#id_state`).val(place.address_components[i].long_name)
+                $(`#id_city`).val(place.address_components[i].long_name)
             }
             // get zipcode
             if(place.address_components[i].types[j]=='postal_code'){
@@ -137,7 +137,7 @@ $(document).ready(function(){
                     }
 
                     applyCartAmounts(response.cart_amount['subtotal'], 
-                    response.cart_amount['tax'],response.cart_amount['total'])
+                    response.cart_amount['tax_dict'],response.cart_amount['total'])
                 }
             }
         })
@@ -204,7 +204,7 @@ $(document).ready(function(){
         if(window.location.pathname == '/marketplace/cart/'){
             $('#subtotal').html(subtotal)
             $('#total').html(total)
-
+            // get tax
             for (key_name in tax_dict){
                 for (key_slug in tax_dict[key_name]){
                     for (key_perc in tax_dict[key_name][key_slug])
