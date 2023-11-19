@@ -8,6 +8,7 @@ class CartAdmin(admin.ModelAdmin):
 admin.site.register(Cart, CartAdmin)
 
 class TaxAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'tax_slug': ('tax_type',)}
     list_display = ('tax_type', 'tax_percentage', 'is_active' )
     
 admin.site.register(Tax, TaxAdmin)

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'marketplace',
     'django.contrib.gis',
     'customer',
+    'orders',
 ]
 
 MIDDLEWARE = [
@@ -73,8 +74,10 @@ TEMPLATES = [
                 'accounts.context_processors.get_vendor',
                 'accounts.context_processors.get_userProfile',
                 'accounts.context_processors.get_googleApi',
+                'accounts.context_processors.get_paypal_id',
                 'marketplace.context_processor.get_cart_counter',
                 'marketplace.context_processor.get_cart_amounts',
+
             ],
         },
     },
@@ -164,6 +167,10 @@ DEFAULT_FROM_EMAIL = 'foodOnline Marketplace <foodonlinemarket123@gmail.com>'
 
 # GOOGLE API configuration
 GOOGLE_API_KEY = config('GOOGLE_API_KEY') 
+
+PAYPAL_CLIENT_ID = config('PAYPAL_CLIENT_ID')
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 
 if DEBUG == True:
     os.environ['PATH'] = os.path.join(BASE_DIR, 'env\Lib\site-packages\osgeo') + ';' + os.environ['PATH']

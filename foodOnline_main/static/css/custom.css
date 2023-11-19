@@ -31,3 +31,10 @@ table > tbody > tr > td{
 .btn-success.add_hour{
     padding: 7px 15px 7px 15px;
 }
+
+
+/* Image style */
+.payment-method [type=radio] + img{
+    cursor: pointer;
+    padding: 5px;
+}

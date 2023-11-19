@@ -1,6 +1,9 @@
 from datetime import date, datetime
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render,get_object_or_404
+from accounts.models import UserProfile
+
+from orders.forms import OrderForm
 from .context_processor import get_cart_amounts, get_cart_counter
 from menu.models import Category, FoodItem
 from django.db.models import Prefetch
@@ -166,3 +169,33 @@ def search(request):
             'source_location': address # take from request
         }
         return render(request, 'marketplace/listings.html', context)
+    
+@login_required(login_url='login')
+def checkout(request):
+    # get items 
+    cart_items = Cart.objects.filter(user=request.user).order_by('created_at')
+    cart_count = cart_items.count()
+    if cart_count <= 0:
+        return redirect('marketplace')
+    
+    # prepopulate the billing form
+    profile = UserProfile.objects.get(user=request.user)
+    form = OrderForm({
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+        'email': request.user.email,
+        'phone': request.user.phone_number,
+        'address': profile.address,
+        'country': profile.country,
+        'state': profile.state,
+        'city': profile.city,
+        'zip_code': profile.zip_code,
+    })
+
+    
+    context = {
+        'form': form,
+        'cart_items': cart_items,
+        'cart_count': cart_count,
+    }
+    return render(request, 'marketplace/checkout.html',context)   
