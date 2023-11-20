@@ -109,10 +109,10 @@ def payments(request):
             }            
             send_notification(mail_subject, mail_template, context)
     # clean the cart
-            cart_items.delete()
+            # cart_items.delete()
     # return back to ajax when status is success
             response = {
-                'order_number': order.order_number,
+                'order_number': order_number,
                 'transaction_id': payment.transaction_id,
             }
             return JsonResponse(response)
@@ -124,10 +124,9 @@ def payments(request):
 
 def order_complete(request):
     order_number = request.GET.get('order_no')
-    trans_id = request.GET.get('trans_id')
-
+    transaction_id = request.GET.get('trans_id')
     try:
-        order = Order.objects.get(order_number=order_number, transaction_id = trans_id, is_ordered=True)
+        order = Order.objects.get(order_number=order_number, payment__transaction_id = transaction_id, is_ordered=True)
         ordered_food = OrderedItems.objects.filter(order=order)
         subtotal = 0
         for i in ordered_food:
@@ -142,4 +141,4 @@ def order_complete(request):
         }
         return render(request, 'orders/order_complete.html',context )
     except:
-        return redirect('')
+        return redirect('home')

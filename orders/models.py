@@ -63,10 +63,10 @@ class OrderedItems(models.Model):
     price = models.FloatField()
     amount = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return self.fooditem
+        return self.fooditem.food_title
 
     class Meta:
         verbose_name = "ordered items"

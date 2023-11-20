@@ -175,15 +175,15 @@
             type: 'POST',
             url: url,
             data: {
-                'transaction_id': "678656457860786",
-                'order_number': "2023111822030731",
-                'status': 'COMPLETED',
-                'payment_method': "PayPal",
-                'amount': '27.97',
+                'transaction_id': transaction_id,
+                'order_number': order_number,
+                'status': status,
+                'payment_method': payment_method,
+                'amount': amount,
                 'csrfmiddlewaretoken': csrf_token,
             },
             success: function(response){
-                window.location.href = order_complete + '?order_no='+response.order_number+'?trans_id='+response.transaction_id
+                window.location.href = order_complete + '?order_no='+response.order_number+'&trans_id='+response.transaction_id
             }
         })
     }

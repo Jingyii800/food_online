@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from accounts.utils import detectUser,send_verification_email
+from orders.models import Order
 from vendor.models import Vendor
 from .models import User, UserProfile
 from django.contrib import messages, auth
@@ -170,7 +171,14 @@ def myAccount(request):
 @login_required(login_url='login')
 @user_passes_test(check_role_customer)
 def custDashboard(request):
-    return render(request, 'accounts/custDashboard.html')
+    orders = Order.objects.filter(user=request.user, is_ordered=True)
+    recent_orders = orders[:5]
+    context = {
+        'orders': orders,
+        'recent_orders': recent_orders,
+        'count': orders.count()
+    }
+    return render(request, 'accounts/custDashboard.html',context)
 
 @login_required(login_url='login')
 @user_passes_test(check_role_vendor)
@@ -225,3 +233,4 @@ def reset_password(request):
             messages.error(request, "Passwords do not match")
             return redirect('reset_password')
     return render(request, 'accounts/reset_password.html')
+
