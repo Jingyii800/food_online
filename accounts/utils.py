@@ -31,6 +31,8 @@ def send_verification_email(request, user, mail_subject, email_template):
     })
     to_email = user.email
     mail = EmailMessage(mail_subject, message, from_email=from_email,to=[to_email])
+    # open email with html code
+    mail.cotent_subtype = 'html'
     mail.send()
 
 def send_notification(mail_subject, mail_template, context):
@@ -42,6 +44,8 @@ def send_notification(mail_subject, mail_template, context):
         to_email.append(context['to_email'])
     else: # in vendor email (already a list)
         to_email = context['to_email']
+    
+    mail.cotent_subtype = 'html'
     # do not change this sequence of EmailMessage !!! follow this sequence 
     mail = EmailMessage(mail_subject, message, from_email=from_email, to=to_email)
     mail.send()

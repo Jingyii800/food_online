@@ -8,8 +8,8 @@ from orders.forms import OrderForm
 from orders.models import Order, OrderedItems, Payment
 import simplejson as json
 from django.contrib.auth.decorators import login_required
-from orders.utils import generate_order_number
-
+from orders.utils import generate_order_number, order_total_by_vendor
+from django.contrib.sites.shortcuts import get_current_site
 @login_required(login_url='login')
 def place_order(request):
     # check cart is not empty
@@ -127,10 +127,19 @@ def payments(request):
     # send order confirmation email to customer
             mail_subject = "Thanks for ordering with us."
             mail_template = 'orders/order_confirmation.html'
+            ordered_food = OrderedItems.objects.filter(order=order)
+            customer_subtotal = 0
+            for item in ordered_food:
+                customer_subtotal+= item.quantity * item.price
+            tax_data = json.loads(order.tax_data)
             context = {
                 'user': order.user,
                 'order': order,
-                'to_email': order.email
+                'to_email': order.email,
+                'ordered_food': ordered_food,
+                'domain': get_current_site(request),
+                'customer_subtotal': customer_subtotal,
+                'tax_data': tax_data,
             }
             send_notification(mail_subject, mail_template, context)
     # send order recieve email to vendor
@@ -141,11 +150,21 @@ def payments(request):
             for i in cart_items:
                 if i.fooditem.vendor.user.email not in to_emails:
                     to_emails.append(i.fooditem.vendor.user.email)
-            context = {
-                'order': order,
-                'to_email': to_emails
-            }            
-            send_notification(mail_subject, mail_template, context)
+
+                    ordered_food_to_vendor = OrderedItems.objects.filter(order=order, 
+                                                fooditem__vendor = i.fooditem.vendor)
+                
+                # loop in each vendor to send the email
+                context = {
+                    'order': order,
+                    'to_email': i.fooditem.vendor.user.email,
+                    'ordered_food_to_vendor': ordered_food_to_vendor,
+                    'vendor_subtotal': order_total_by_vendor(order,i.fooditem.vendor.id)['subtotal'],
+                    'vendor_tax_dict': order_total_by_vendor(order,i.fooditem.vendor.id)['tax_dict'],
+                    'vendor_total': order_total_by_vendor(order,i.fooditem.vendor.id)['total'],  
+
+                }     
+                send_notification(mail_subject, mail_template, context)
     # clean the cart
             cart_items.delete()
     # return back to ajax when status is success
