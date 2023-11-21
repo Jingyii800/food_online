@@ -60,7 +60,7 @@
                                                             <p class="mb-0"><b>{{item.fooditem}}</b></p>
                                                             <a class="text-muted" href="{% url 'vendor_detail' item.fooditem.vendor.vendor_slug %}" class="href">{{item.fooditem.vendor}}</a>
                                                         </td>
-                                                        <td>x {{item.fooditem.price}}</td>
+                                                        <td>{{item.fooditem.price}}</td>
                                                         <td><b>x {{item.quantity}}</b></td>
                                                     </tr>
                                                     {% endfor %}

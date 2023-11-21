@@ -7,12 +7,14 @@ class PaymentAdmin(admin.ModelAdmin):
 
 class OrderedItemInline(admin.TabularInline):
     model = OrderedItems
-    readonly_fields = ('order', 'payment', 'user', 'fooditem', 'quantity', 'price', 'amount')
+    readonly_fields = ('order', 'payment', 'user', 'fooditem', 
+                       'quantity', 'price', 'amount')
     extra = 0
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'payment', 'order_number', 
-                    'total','address', 'payment', 'status', 'is_ordered')
+                    'total','address', 'payment', 'status', 'is_ordered',
+                    'order_placed_to')
     inlines = [OrderedItemInline]
 
 admin.site.register(Payment, PaymentAdmin)

@@ -82,8 +82,7 @@
                                             </li>
 
                                             {% for key,value in tax_dict.items %}
-                                            {% for key1,value1 in value.items %}
-                                            {% for i, j in value1.items %}
+                                            {% for i, j in value.items %}
                                                 <li style="list-style-type: none;">
                                                     {{key}} <small>({{i}}%)</small>
                                                     <span class="price float-right">
@@ -92,7 +91,6 @@
                                                     </span>
                                                 </li>
                                                 {% endfor %}
-                                            {% endfor %}
                                             {% endfor %}
 
 

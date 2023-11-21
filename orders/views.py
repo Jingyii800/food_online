@@ -2,7 +2,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from accounts.utils import send_notification
 from marketplace.context_processor import get_cart_amounts
-from marketplace.models import Cart
+from marketplace.models import Cart, Tax
+from menu.models import FoodItem
 from orders.forms import OrderForm
 from orders.models import Order, OrderedItems, Payment
 import simplejson as json
@@ -16,6 +17,40 @@ def place_order(request):
     cart_count = cart_items.count()
     if cart_count <= 0:
         return redirect('marketplace')
+
+    # get vendors from this order
+    vendors_ids = []
+    for i in cart_items:
+        if i.fooditem.vendor.id not in vendors_ids:
+            vendors_ids.append(i.fooditem.vendor.id)
+    
+    get_tax = Tax.objects.filter(is_active=True)
+    # get subtotal for each vendor
+    subtotal = 0
+    added={}
+    total_data = {}
+    for i in cart_items:
+        fooditem = FoodItem.objects.get(pk=i.fooditem.id, vendor_id__in=vendors_ids)
+        v_id = fooditem.vendor.id
+        if v_id in added:
+            subtotal = added['v_id'] # retrieve from dict
+            subtotal += fooditem.price * i.quantity # add new subtotal
+            added['v_id'] = subtotal # add to dict
+        else:
+            subtotal = fooditem.price * i.quantity
+            added['v_id'] = subtotal # initialize this in dict
+
+        # calculate tax
+        tax_dict={}
+        for i in get_tax:
+            tax_type = i.tax_type
+            tax_percentage = i.tax_percentage
+            tax_slug = i.tax_slug
+            tax_amount = round(subtotal*tax_percentage/100, 2)
+            tax_dict.update({tax_type:{str(tax_percentage): str(tax_amount)}})
+        
+        # calculate total
+        total_data.update({fooditem.vendor.id: {str(subtotal): str(tax_dict)}})
 
     # place order
     total_tax = get_cart_amounts(request)['tax']
@@ -38,10 +73,13 @@ def place_order(request):
             order.user = request.user
             order.total = total
             order.tax_data = json.dumps(tax_data)
+            # update total data
+            order.total_data = total_data
             order.total_tax = total_tax
             order.payment_method = request.POST['payment_method']
             order.save()
             order.order_number = generate_order_number(order.id)
+            order.vendors.add(*vendors_ids) # add data to many-many field
             order.save()
             # after created, move to the confirm page
             context = {
@@ -109,11 +147,11 @@ def payments(request):
             }            
             send_notification(mail_subject, mail_template, context)
     # clean the cart
-            # cart_items.delete()
+            cart_items.delete()
     # return back to ajax when status is success
             response = {
                 'order_number': order_number,
-                'transaction_id': payment.transaction_id,
+                'transaction_id':payment.transaction_id,
             }
             return JsonResponse(response)
     # return back to ajax when status is failed
@@ -126,7 +164,9 @@ def order_complete(request):
     order_number = request.GET.get('order_no')
     transaction_id = request.GET.get('trans_id')
     try:
-        order = Order.objects.get(order_number=order_number, payment__transaction_id = transaction_id, is_ordered=True)
+        order = Order.objects.get(order_number=order_number, 
+                                  payment__transaction_id = transaction_id, 
+                                  is_ordered=True)
         ordered_food = OrderedItems.objects.filter(order=order)
         subtotal = 0
         for i in ordered_food:

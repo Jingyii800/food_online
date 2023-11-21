@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.template.defaultfilters import slugify
+import datetime
 
 # Restrict the users from accessing the wrong role page 
 # (cust !-> vendor)
@@ -171,7 +172,7 @@ def myAccount(request):
 @login_required(login_url='login')
 @user_passes_test(check_role_customer)
 def custDashboard(request):
-    orders = Order.objects.filter(user=request.user, is_ordered=True)
+    orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
     recent_orders = orders[:5]
     context = {
         'orders': orders,
@@ -183,7 +184,28 @@ def custDashboard(request):
 @login_required(login_url='login')
 @user_passes_test(check_role_vendor)
 def vendorDashboard(request):
-    return render(request, 'accounts/vendorDashboard.html')
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('-created_at')
+    recent_orders = orders[:5]
+    # total revenue
+    total_revenue = 0
+    for order in orders:
+        total_revenue += order.get_total_by_vendor()['total']
+    # current month revenue
+    current_month = datetime.datetime.now().month
+    current_month_orders = orders.filter(vendors__in=[vendor.id], created_at__month=current_month)
+    total_m_revenue = 0
+    for order in current_month_orders:
+        total_m_revenue+=order.get_total_by_vendor()['total']
+        
+    context = {
+        'orders': orders,
+        'count' : orders.count(),
+        'recent_orders': recent_orders,
+        "total_revenue": total_revenue,
+        'm_revenue': total_m_revenue,
+    }
+    return render(request, 'accounts/vendorDashboard.html', context)
 
 def forgot_password(request):
     if request.method == 'POST':

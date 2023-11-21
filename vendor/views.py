@@ -7,6 +7,7 @@ from accounts.models import UserProfile
 from accounts.views import check_role_vendor
 from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
+from orders.models import Order, OrderedItems
 from vendor.forms import OpeningHourForm, VendorForm
 from vendor.models import OpeningHour, Vendor
 from django.contrib import messages
@@ -235,3 +236,29 @@ def remove_opening_hour(request,pk=None):
             return JsonResponse({'status':'Failed', 'message':'Invalid request.'})
     else:
         return JsonResponse({'status':'login_required', 'message': 'Please login to continue.'})
+    
+def v_order_detail(request, order_number):
+    try:
+        order = Order.objects.get(order_number=order_number, is_ordered=True)
+        ordered_food = OrderedItems.objects.filter(order=order, fooditem__vendor=get_vendor(request))
+
+        context = {
+            'order': order,
+            "ordered_food": ordered_food,
+            'subtotal': order.get_total_by_vendor()['subtotal'],
+            'total': order.get_total_by_vendor()['total'],
+            'tax_dic': order.get_total_by_vendor()['tax_dict'],
+        }
+        return render(request, 'vendor/v_order_detail.html', context)
+    except:
+        return redirect('vendor')
+
+def v_my_orders(request):
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('-created_at')
+    context = {
+        'orders': orders,
+        'count' : orders.count(),
+
+    }
+    return render(request, 'vendor/v_my_orders.html',context)

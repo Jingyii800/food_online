@@ -31,12 +31,11 @@ def get_cart_amounts(request):
         get_tax = Tax.objects.filter(is_active=True)
         # calculate total tax
         for i in get_tax:
-            tax_slug = i.tax_slug
             tax_type = i.tax_type
             tax_percentage = i.tax_percentage
             tax_amount = round(subtotal*tax_percentage/100, 2)
             total_tax += tax_amount
-            tax_dict.update({tax_type:{tax_slug: {str(tax_percentage): tax_amount}}})
+            tax_dict.update({tax_type: {str(tax_percentage): tax_amount}})
 
         total = total_tax + subtotal # total amount
     return dict(total=total, subtotal=subtotal, tax=total_tax, tax_dict=tax_dict)

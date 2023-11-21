@@ -1,6 +1,11 @@
 from django.db import models
 from accounts.models import User
 from menu.models import FoodItem
+from vendor.models import Vendor
+import json
+import ast
+
+request_object = ''
 
 class Payment(models.Model):
     PAYMENT_METHOD = (
@@ -38,8 +43,11 @@ class Order(models.Model):
     city = models.CharField(max_length=50)
     zip_code = models.CharField(max_length=10)
     total = models.FloatField()
-    tax_data = models.JSONField(blank=True, help_text="Data format: {'tax_type':{'tax_percentage':'tax_amount'}}")
+    tax_data = models.JSONField(blank=True, null=True, help_text="Data format: {'tax_type':{'tax_percentage':'tax_amount'}}")
     total_tax = models.FloatField()
+    # for many to many fields
+    vendors = models.ManyToManyField(Vendor, blank=True)
+    total_data = models.JSONField(blank=True, null=True)
     payment_method = models.CharField(max_length=25)
     status = models.CharField(max_length=15, choices=STATUS, default='New')
     is_ordered = models.BooleanField(default=False)
@@ -51,8 +59,48 @@ class Order(models.Model):
     def name(self):
         return f'{self.first_name} {self.last_name}'
     
+    # display all vendors in this order
+    def order_placed_to(self):
+        return ",".join( [i.vendor_name for i in self.vendors.all()])
+    
+    def get_total_by_vendor(self):
+        vendor = Vendor.objects.get(user=request_object.user)
+        subtotal = 0
+        tax = 0
+        tax_dict = {}
+
+        if self.total_data:
+            total_data = self.total_data
+            data = total_data.get(str(vendor.id))
+
+            for key, val in data.items():
+                subtotal += float(key)
+
+                if isinstance(val, str):
+                    val = val.replace("'", '"')
+                    val = json.loads(val)
+                elif not isinstance(val, dict):
+                    # Handle the case where val is neither a string nor a dictionary
+                    continue
+                
+                tax_dict.update(val)
+                # Calculate tax
+                for tax_type, tax_rates in val.items():
+                    for rate, amount in tax_rates.items():
+                        tax += float(amount)
+
+        total = float(subtotal) + float(tax)
+        context = {
+            'subtotal': subtotal,
+            'tax_dict': tax_dict, 
+            'total': total,
+        }
+
+        return context
+
     def __str__(self):
         return self.order_number
+    
     
 class OrderedItems(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
