@@ -195,6 +195,7 @@ def vendorDashboard(request):
     current_month = datetime.datetime.now().month
     current_month_orders = orders.filter(vendors__in=[vendor.id], created_at__month=current_month)
     total_m_revenue = 0
+    # get total by vendor
     for order in current_month_orders:
         total_m_revenue+=order.get_total_by_vendor()['total']
         
