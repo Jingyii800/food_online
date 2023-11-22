@@ -1,2 +1,2 @@
 # food_online
-A multi-vendors food ordering online platform
+A multi-vendor food ordering online platform.
